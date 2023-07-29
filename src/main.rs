@@ -1,6 +1,7 @@
 extern crate colored;
 
 use regex::Regex;
+use std::time;
 use std::{collections::HashMap, io::stdin};
 
 use colored::*;
@@ -36,13 +37,21 @@ fn main() {
     let allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     println!("{} {}", "ALLOWED CHARACTERS".blue().bold(), allowed);
 
+    let start = time::Instant::now();
     let passwords = generate_combinations(allowed);
     println!(
-        "{} {} Combinations",
-        "LOADED".blue().bold(),
+        "{}: {} Hashes",
+        format!(
+            "[ELAPSED: {}ms] {}",
+            start.elapsed().as_millis(),
+            "COMBINATIONS"
+        )
+        .blue()
+        .bold(),
         passwords.len()
     );
 
+    let start = time::Instant::now();
     for pass in passwords {
         let init_bytes = pass.as_bytes();
         sha.update(init_bytes);
@@ -51,7 +60,17 @@ fn main() {
         sha.reset();
     }
 
-    println!("{} {} Hashes", "CALCULATED".blue().bold(), store.len());
+    println!(
+        "{}: {} Hashes",
+        format!(
+            "[ELAPSED: {}ms] {}",
+            start.elapsed().as_millis(),
+            "CALCULATED"
+        )
+        .blue()
+        .bold(),
+        store.len()
+    );
 
     loop {
         println!("{} Sha256 Hash:", "ENTER".yellow().bold());
@@ -68,12 +87,19 @@ fn main() {
         }
 
         if is_valid_sha256_hash(&input) {
+            let start = time::Instant::now();
             match store.get(input.to_lowercase().as_str()) {
                 None => {
                     println!("No Record Found")
                 }
                 Some(data) => {
-                    println!("{}: {}", "PASSWORD".green().bold(), data);
+                    println!(
+                        "{}: {}",
+                        format!("[ELAPSED: {}ns] {}", start.elapsed().as_nanos(), "CRACKED")
+                            .green()
+                            .bold(),
+                        data
+                    );
                 }
             }
         } else {
