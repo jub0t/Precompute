@@ -10,5 +10,6 @@ regex = "1.5"
 colored = "2"
 humantime = "2.1"
 
+# Speed Optimization
 [profile.release]
 opt-level = 3
