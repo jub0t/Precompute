@@ -67,7 +67,7 @@ fn main() {
             start.elapsed().as_millis(),
             "CALCULATED"
         )
-        .blue()
+        .green()
         .bold(),
         store.len()
     );
