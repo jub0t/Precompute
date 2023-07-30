@@ -13,7 +13,7 @@ pub fn is_valid_sha256_hash(input: &str) -> bool {
 }
 
 fn generate_combinations(allowed: &str) -> Vec<String> {
-    let letters = allowed;
+    let letters: &str = allowed;
     let mut combinations = Vec::new();
 
     for c1 in letters.chars() {
