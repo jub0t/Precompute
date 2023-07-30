@@ -1,5 +1,6 @@
 #include <iostream>
 #include <iomanip>
+#include <locale>
 #include <sstream>
 #include <openssl/evp.h>
 #include <deque>
@@ -34,15 +35,13 @@ std::string sha256(const std::string &str)
 
 Combolist combinations(std::string allowed)
 {
-    Combolist list;
     size_t charlen = allowed.length();
+    Combolist list;
 
     if (charlen < 4)
     {
         return list;
     }
-
-    size_t total_combinations = charlen * charlen * charlen * charlen;
 
     for (size_t i = 0; i < charlen; i++)
     {
@@ -63,35 +62,36 @@ Combolist combinations(std::string allowed)
 
 int main()
 {
+    // Initialize
     std::string target = "278f14e96cc67489e5c0d6cebec8a2718fb158ec656fd41fed7ecd031cd472b2"; // "GOOD"
-
-    Combolist list = combinations("ABCDEFGHIJKLMNOPQRSTUVWXYabcdefghijklmnopqrstuvwxyz");
-    std::cout << "Combolist Size: " << list.size() << std::endl;
     std::unordered_map<std::string, std::string> hashes;
 
-    auto startTime = std::chrono::high_resolution_clock::now();
-
+    // Initialize Combolist
+    Combolist list = combinations("ABCDEFGHIJKLMNOPQRSTUVWXYabcdefghijklmnopqrstuvwxyz");
+    std::cout << "COMBOLIST SIZE: " << list.size() << std::endl;
     std::size_t listSize = list.size();
-    std::string hash;
 
+    auto startTime = std::chrono::high_resolution_clock::now();
+    // Hash The Entire  Combolist
     for (std::size_t i = 0; i < listSize; i++)
     {
-        hash = sha256(list[i]);
-        hashes[hash] = list[i];
+        hashes[sha256(list[i])] = list[i];
     }
 
     auto endTime = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
-    std::cout << "Hashed in " << duration << "ms" << std::endl;
+    auto hashed_duration = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
 
     auto start = std::chrono::high_resolution_clock::now();
     std::unordered_map<std::string, std::string>::iterator found = hashes.find(target);
-
     if (found != hashes.end())
     {
         auto end = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
-        std::cout << "Target Found: " << found->first << " in " << duration << "ns" << std::endl;
+        auto found_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+
+        // Verbose
+        std::cout << "HASH: " << found->first << "\nVALUE: " << found->second << "\nHASH TIME: " << hashed_duration << "ms"
+                  << "\nFOUND TIME: " << found_duration << "ns"
+                  << "\nHASHES/SEC: " << (listSize / (hashed_duration / 1000.0)) << std::endl;
     }
     else
     {
