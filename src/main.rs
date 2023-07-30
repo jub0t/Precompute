@@ -34,7 +34,7 @@ fn main() {
     let mut store: HashMap<String, String> = HashMap::new();
     let mut sha = sha256::Sha256::new();
 
-    let allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
+    let allowed = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     println!("{} {}", "ALLOWED CHARACTERS".blue().bold(), allowed);
 
     let start = time::Instant::now();
