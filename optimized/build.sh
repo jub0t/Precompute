@@ -1,1 +1,1 @@
-g++ ./main.cpp -I/usr/include/openssl -lcrypto -o ./build -march=native -funroll-loops -finline-functions -ftree-vectorize -Os
+g++ ./main.cpp -o ./build -I/usr/include/openssl -lcrypto -O3
