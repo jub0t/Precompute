@@ -10,10 +10,10 @@ using Combolist = std::deque<std::string>;
 
 std::string sha256(const std::string &str)
 {
-    unsigned char hash[EVP_MAX_MD_SIZE]; // Maximum size for any hash algorithm
+    unsigned char hash[EVP_MAX_MD_SIZE];
 
     EVP_MD_CTX *mdctx;
-    const EVP_MD *md = EVP_sha256(); // Get the SHA-256 message digest algorithm
+    const EVP_MD *md = EVP_sha256();
     mdctx = EVP_MD_CTX_new();
     EVP_DigestInit_ex(mdctx, md, NULL);
     EVP_DigestUpdate(mdctx, str.c_str(), str.size());
@@ -21,15 +21,15 @@ std::string sha256(const std::string &str)
     EVP_DigestFinal_ex(mdctx, hash, &hashLen);
     EVP_MD_CTX_free(mdctx);
 
-    // Convert hash to hexadecimal string representation
-    std::stringstream result;
-    result << std::hex << std::setfill('0');
+    std::string result;
+    result.reserve(2 * hashLen);
     for (unsigned int i = 0; i < hashLen; i++)
     {
-        result << std::setw(2) << static_cast<unsigned int>(hash[i]);
+        result.push_back("0123456789abcdef"[hash[i] >> 4]);
+        result.push_back("0123456789abcdef"[hash[i] & 0x0F]);
     }
 
-    return result.str();
+    return result;
 }
 
 Combolist combinations(std::string allowed)
@@ -39,10 +39,10 @@ Combolist combinations(std::string allowed)
 
     if (charlen < 4)
     {
-        // Edge case: If the length of the allowed string is less than 4,
-        // it is not possible to form 4-letter combinations.
         return list;
     }
+
+    size_t total_combinations = charlen * charlen * charlen * charlen;
 
     for (size_t i = 0; i < charlen; i++)
     {
@@ -65,16 +65,19 @@ int main()
 {
     std::string target = "278f14e96cc67489e5c0d6cebec8a2718fb158ec656fd41fed7ecd031cd472b2"; // "GOOD"
 
-    Combolist list = combinations("ABCDEFGHIJKLMNOPQRSTUVWXYabcdefghijklmnopqrstuvwxyz1234567890"); // Include 'Y' and fix 'Z'
-    std::cout << "Combolist Size: " << list.size() << std::endl;                                    // Use cout instead of printf
+    Combolist list = combinations("ABCDEFGHIJKLMNOPQRSTUVWXYabcdefghijklmnopqrstuvwxyz");
+    std::cout << "Combolist Size: " << list.size() << std::endl;
     std::unordered_map<std::string, std::string> hashes;
 
     auto startTime = std::chrono::high_resolution_clock::now();
 
-    for (const std::string &word : list)
+    std::size_t listSize = list.size();
+    std::string hash;
+
+    for (std::size_t i = 0; i < listSize; i++)
     {
-        std::string hash = sha256(word);
-        hashes[hash] = word;
+        hash = sha256(list[i]);
+        hashes[hash] = list[i];
     }
 
     auto endTime = std::chrono::high_resolution_clock::now();
@@ -82,7 +85,7 @@ int main()
     std::cout << "Hashed in " << duration << "ms" << std::endl;
 
     auto start = std::chrono::high_resolution_clock::now();
-    auto found = hashes.find(target);
+    std::unordered_map<std::string, std::string>::iterator found = hashes.find(target);
 
     if (found != hashes.end())
     {
